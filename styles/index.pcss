@@ -37,12 +37,32 @@
     }
   }
 
-  &--ordered > &__item::before {
+  &--numbered > &__item::before {
     content: counters(item, ".") ". ";
   }
 
   &--unordered > &__item::before {
     content: "•";
+  }
+
+  &--circled > &__item::before {
+    content: "○";
+  }
+
+  &--squared > &__item::before {
+    content: "■";
+  }
+
+  &--stared > &__item::before {
+    content: "★";
+  }
+
+  &--dashed > &__item::before {
+    content: "-";
+  }
+
+  &--arrowed > &__item::before {
+    content: "→";
   }
 
   &__settings {
@@ -51,5 +71,13 @@
     .cdx-settings-button {
       width: 50%;
     }
+  }
+}
+
+[data-item-name="normal"], [data-item-name="compact"] {
+  .ce-popover-item__icon {
+    width: 1px;
+    overflow: hidden;
+    opacity: 0;
   }
 }

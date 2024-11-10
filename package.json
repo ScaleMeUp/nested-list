@@ -1,5 +1,5 @@
 {
-  "name": "@editorjs/nested-list",
+  "name": "@scalemeup/nested-list",
   "version": "1.4.3",
   "keywords": [
     "codex editor",
@@ -7,8 +7,8 @@
     "editor.js",
     "editorjs"
   ],
-  "description": "Nested list Tool for EditorJS",
-  "repository": "https://github.com/editor-js/nested-list.git",
+  "description": "Nested list Tool for EditorJS for spacing and style type options",
+  "repository": "https://github.com/ScaleMeUp/nested-list.git",
   "author": "CodeX <team@codex.so>",
   "license": "MIT",
   "files": [

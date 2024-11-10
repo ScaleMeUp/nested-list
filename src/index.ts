@@ -2,14 +2,22 @@ import type { API, PasteConfig, ToolboxConfig } from '@editorjs/editorjs';
 import type { PasteEvent } from './types';
 import type {
   BlockToolConstructorOptions,
-  TunesMenuConfig,
 } from '@editorjs/editorjs/types/tools';
 
 import { isHtmlElement } from './utils/type-guards';
 
 import * as Dom from './utils/dom';
 import Caret from './utils/caret';
-import { IconListBulleted, IconListNumbered } from '@codexteam/icons';
+import { IconListBulleted } from '@codexteam/icons'
+
+import { Icon as NumberedIcon } from './icons/numbered';
+import { Icon as UnorderedIcon } from './icons/unordered';
+import { Icon as CircledIcon } from './icons/circled';
+import { Icon as SquaredIcon } from './icons/squared';
+import { Icon as StaredIcon } from './icons/stared';
+import { Icon as DashedIcon } from './icons/dashed';
+import { Icon as ArrowedIcon } from './icons/arrowed';
+import { Icon as SpacingIcon } from './icons/spacing';
 
 /**
  * Build styles
@@ -19,7 +27,13 @@ import './../styles/index.pcss';
 /**
  * list style to make list as ordered or unordered
  */
-type ListDataStyle = 'ordered' | 'unordered';
+type ListDataStyle = 'numbered'
+  | 'unordered'
+  | 'circled'
+  | 'squared'
+  | 'stared'
+  | 'dashed'
+  | 'arrowed';
 
 /**
  * Output data
@@ -29,6 +43,12 @@ interface ListData {
    * list type 'ordered' or 'unordered'
    */
   style: ListDataStyle;
+
+  /**
+   * list spacing 'normal' or 'large'
+   */
+  spacing: 'normal' | 'compact';
+
   /**
    * list of first-level elements
    */
@@ -74,8 +94,7 @@ export type NestedListParams = BlockToolConstructorOptions<
 interface NestedListCssClasses {
   baseBlock: string;
   wrapper: string;
-  wrapperOrdered: string;
-  wrapperUnordered: string;
+  wrapperType: string;
   item: string;
   itemBody: string;
   itemContent: string;
@@ -117,7 +136,7 @@ export default class NestedList {
    */
   static get toolbox(): ToolboxConfig {
     return {
-      icon: IconListNumbered,
+      icon: IconListBulleted,
       title: 'List',
     };
   }
@@ -182,12 +201,14 @@ export default class NestedList {
      * Set the default list style from the config.
      */
     this.defaultListStyle =
-      this.config?.defaultStyle === 'ordered' ? 'ordered' : 'unordered';
+      this.config?.defaultStyle === 'numbered' ? 'numbered' : 'unordered';
 
     const initialData = {
       style: this.defaultListStyle,
+      spacing: 'normal' as const,
       items: [],
     };
+
     this.data = data && Object.keys(data).length ? data : initialData;
 
     /**
@@ -256,30 +277,102 @@ export default class NestedList {
    * @public
    * @returns {Array}
    */
-  renderSettings(): TunesMenuConfig {
-    const tunes = [
+  renderSettings() {
+    const styleTunes = [
       {
         name: 'unordered' as const,
-        label: this.api.i18n.t('Unordered'),
-        icon: IconListBulleted,
+        title: this.api.i18n.t('Unordered'),
+        icon: UnorderedIcon,
       },
+
       {
-        name: 'ordered' as const,
-        label: this.api.i18n.t('Ordered'),
-        icon: IconListNumbered,
+        name: 'numbered' as const,
+        title: this.api.i18n.t('Numbered'),
+        icon: NumberedIcon,
+      },
+
+      {
+        name: 'circled' as const,
+        title: this.api.i18n.t('Circled'),
+        icon: CircledIcon,
+      },
+
+      {
+        name: 'squared' as const,
+        title: this.api.i18n.t('Squared'),
+        icon: SquaredIcon,
+      },
+
+      {
+        name: 'stared' as const,
+        title: this.api.i18n.t('Stared'),
+        icon: StaredIcon,
+      },
+
+      {
+        name: 'dashed' as const,
+        title: this.api.i18n.t('Dashed'),
+        icon: DashedIcon,
+      },
+
+      {
+        name: 'arrowed' as const,
+        title: this.api.i18n.t('Arrowed'),
+        icon: ArrowedIcon,
       },
     ];
 
-    return tunes.map((tune) => ({
-      name: tune.name,
-      icon: tune.icon,
-      label: tune.label,
-      isActive: this.data.style === tune.name,
-      closeOnActivate: true,
-      onActivate: () => {
-        this.listStyle = tune.name;
+    const spacingTunes = [
+      {
+        name: 'normal',
+        title: this.api.i18n.t('Normal'),
+        icon: null,
       },
-    }));
+
+      {
+        name: 'compact',
+        title: this.api.i18n.t('Compact'),
+        icon: null,
+      },
+    ]
+
+    return [
+      {
+        name: 'style',
+        title: this.api.i18n.t('Style'),
+        icon: IconListBulleted,
+        children: {
+          items: styleTunes.map((tune) => ({
+            name: tune.name,
+            icon: tune.icon,
+            title: tune.title,
+            isActive: this.data.style === tune.name,
+            closeOnActivate: true,
+            onActivate: () => {
+              this.listStyle = tune.name;
+            },
+          }))
+        },
+      },
+
+      {
+        name: 'spacing',
+        title: this.api.i18n.t('Spacing'),
+        icon: SpacingIcon,
+        children: {
+          items: spacingTunes.map((tune) => ({
+            name: tune.name,
+            icon: tune.icon,
+            title: tune.title,
+            isActive: this.data.spacing === tune.name,
+            closeOnActivate: true,
+            onActivate: () => {
+              this.data.spacing = tune.name as ListData['spacing'];
+            },
+          })),
+        },
+      },
+    ];
   }
 
   /**
@@ -325,7 +418,7 @@ export default class NestedList {
     // set list style and tag to search.
     switch (tag) {
       case 'OL':
-        style = 'ordered';
+        style = 'numbered';
         tagToSearch = 'ol';
         break;
       case 'UL':
@@ -336,6 +429,7 @@ export default class NestedList {
 
     const data: ListData = {
       style,
+      spacing: 'normal',
       items: [],
     };
 
@@ -439,6 +533,7 @@ export default class NestedList {
 
     return {
       style: this.data.style,
+      spacing: this.data.spacing,
       items: this.nodes.wrapper ? getItems(this.nodes.wrapper) : [],
     };
   }
@@ -475,9 +570,8 @@ export default class NestedList {
     style: string = this.listStyle,
     classes: string[] = []
   ): HTMLOListElement | HTMLUListElement {
-    const tag = style === 'ordered' ? 'ol' : 'ul';
-    const styleClass =
-      style === 'ordered' ? this.CSS.wrapperOrdered : this.CSS.wrapperUnordered;
+    const tag = style === 'numbered' ? 'ol' : 'ul';
+    const styleClass = `${this.CSS.wrapperType}${style}`;
 
     classes.push(styleClass);
 
@@ -497,8 +591,7 @@ export default class NestedList {
     return {
       baseBlock: this.api.styles.block,
       wrapper: 'cdx-nested-list',
-      wrapperOrdered: 'cdx-nested-list--ordered',
-      wrapperUnordered: 'cdx-nested-list--unordered',
+      wrapperType: 'cdx-nested-list--',
       item: 'cdx-nested-list__item',
       itemBody: 'cdx-nested-list__item-body',
       itemContent: 'cdx-nested-list__item-content',
@@ -548,8 +641,21 @@ export default class NestedList {
      * For each list we need to update classes
      */
     lists.forEach((list) => {
-      list.classList.toggle(this.CSS.wrapperUnordered, style === 'unordered');
-      list.classList.toggle(this.CSS.wrapperOrdered, style === 'ordered');
+      const types = [
+        'unordered',
+        'numbered',
+        'circled',
+        'squared',
+        'stared',
+        'dashed',
+        'arrowed',
+      ];
+
+      for (const type of types) {
+        list.classList.remove(`${this.CSS.wrapperType}${type}`);
+      }
+
+      list.classList.add(`${this.CSS.wrapperType}${style}`);
     });
 
     /**
@@ -1105,6 +1211,7 @@ export default class NestedList {
               items: [],
             },
           ],
+          spacing: 'normal',
           style: 'unordered',
         };
       },
