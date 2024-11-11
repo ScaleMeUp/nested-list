@@ -119,6 +119,10 @@ export default class NestedList {
      */
     private caret;
     /**
+     * Current element
+     */
+    private block;
+    /**
      * Render plugin`s main Element and fill it with saved data
      *
      * @param {object} params - tool constructor options
@@ -127,7 +131,7 @@ export default class NestedList {
      * @param {object} params.api - Editor.js API
      * @param {boolean} params.readOnly - read-only mode flag
      */
-    constructor({ data, config, api, readOnly }: NestedListParams);
+    constructor({ data, config, api, readOnly, block }: NestedListParams);
     /**
      * Returns list tag with items
      *

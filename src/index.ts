@@ -1,4 +1,4 @@
-import type { API, PasteConfig, ToolboxConfig } from '@editorjs/editorjs';
+import type {API, BlockAPI, PasteConfig, ToolboxConfig} from '@editorjs/editorjs';
 import type { PasteEvent } from './types';
 import type {
   BlockToolConstructorOptions,
@@ -177,6 +177,11 @@ export default class NestedList {
   private caret: Caret;
 
   /**
+   * Current element
+   */
+  private block: BlockAPI | undefined;
+
+  /**
    * Render plugin`s main Element and fill it with saved data
    *
    * @param {object} params - tool constructor options
@@ -185,7 +190,7 @@ export default class NestedList {
    * @param {object} params.api - Editor.js API
    * @param {boolean} params.readOnly - read-only mode flag
    */
-  constructor({ data, config, api, readOnly }: NestedListParams) {
+  constructor({ data, config, api, readOnly, block }: NestedListParams) {
     /**
      * HTML nodes used in tool
      */
@@ -196,6 +201,7 @@ export default class NestedList {
     this.api = api;
     this.readOnly = readOnly;
     this.config = config;
+    this.block = block;
 
     /**
      * Set the default list style from the config.
@@ -350,6 +356,8 @@ export default class NestedList {
             closeOnActivate: true,
             onActivate: () => {
               this.listStyle = tune.name;
+
+              this.block?.dispatchChange();
             },
           }))
         },
@@ -368,6 +376,8 @@ export default class NestedList {
             closeOnActivate: true,
             onActivate: () => {
               this.data.spacing = tune.name as ListData['spacing'];
+
+              this.block?.dispatchChange();
             },
           })),
         },

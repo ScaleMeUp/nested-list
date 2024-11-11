@@ -189,7 +189,7 @@ const C = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="
 <path d="M7 9.91718L11.8586 5.05858C11.9367 4.98048 12.0633 4.98048 12.1414 5.05858L17 9.91718" stroke="black" stroke-width="2" stroke-linecap="round"/>
 <path d="M17 14L12.1414 18.8586C12.0633 18.9367 11.9367 18.9367 11.8586 18.8586L7 14" stroke="black" stroke-width="2" stroke-linecap="round"/>
 </svg>`;
-class m {
+class g {
   /**
    * Notify core that read-only mode is supported
    *
@@ -229,17 +229,17 @@ class m {
    * @param {object} params.api - Editor.js API
    * @param {boolean} params.readOnly - read-only mode flag
    */
-  constructor({ data: t, config: e, api: n, readOnly: i }) {
-    var s;
+  constructor({ data: t, config: e, api: n, readOnly: i, block: r }) {
+    var o;
     this.nodes = {
       wrapper: null
-    }, this.api = n, this.readOnly = i, this.config = e, this.defaultListStyle = ((s = this.config) == null ? void 0 : s.defaultStyle) === "numbered" ? "numbered" : "unordered";
-    const r = {
+    }, this.api = n, this.readOnly = i, this.config = e, this.block = r, this.defaultListStyle = ((o = this.config) == null ? void 0 : o.defaultStyle) === "numbered" ? "numbered" : "unordered";
+    const s = {
       style: this.defaultListStyle,
       spacing: "normal",
       items: []
     };
-    this.data = t && Object.keys(t).length ? t : r, this.caret = new h();
+    this.data = t && Object.keys(t).length ? t : s, this.caret = new h();
   }
   /**
    * Returns list tag with items
@@ -344,7 +344,7 @@ class m {
             isActive: this.data.style === n.name,
             closeOnActivate: !0,
             onActivate: () => {
-              this.listStyle = n.name;
+              this.listStyle = n.name, this.block.dispatchChange();
             }
           }))
         }
@@ -361,7 +361,7 @@ class m {
             isActive: this.data.spacing === n.name,
             closeOnActivate: !0,
             onActivate: () => {
-              this.data.spacing = n.name;
+              this.data.spacing = n.name, this.block.dispatchChange();
             }
           }))
         }
@@ -410,11 +410,11 @@ class m {
       style: n,
       spacing: "normal",
       items: []
-    }, s = (l) => Array.from(l.querySelectorAll(":scope > li")).map((o) => {
-      var g;
-      const a = o.querySelector(`:scope > ${i}`), S = a ? s(a) : [];
+    }, s = (o) => Array.from(o.querySelectorAll(":scope > li")).map((a) => {
+      var m;
+      const l = a.querySelector(`:scope > ${i}`), S = l ? s(l) : [];
       return {
-        content: ((g = o == null ? void 0 : o.firstChild) == null ? void 0 : g.textContent) || "",
+        content: ((m = a == null ? void 0 : a.firstChild) == null ? void 0 : m.textContent) || "",
         items: S
       };
     });
@@ -456,10 +456,10 @@ class m {
     const t = (e) => Array.from(
       e.querySelectorAll(`:scope > .${this.CSS.item}`)
     ).map((i) => {
-      const r = i.querySelector(`.${this.CSS.itemChildren}`), s = this.getItemContent(i), l = r ? t(r) : [];
+      const r = i.querySelector(`.${this.CSS.itemChildren}`), s = this.getItemContent(i), o = r ? t(r) : [];
       return {
         content: s,
-        items: l
+        items: o
       };
     });
     return {
@@ -578,10 +578,10 @@ class m {
     const s = h.extractFragmentFromCaretPositionTillTheEnd();
     if (!s)
       return;
-    const l = f(s), p = e == null ? void 0 : e.querySelector(
+    const o = f(s), p = e == null ? void 0 : e.querySelector(
       `.${this.CSS.itemChildren}`
-    ), o = this.createItem(l, void 0);
-    p && Array.from(p.querySelectorAll(`.${this.CSS.item}`)).length > 0 ? p.prepend(o) : e == null || e.after(o), this.focusItem(o);
+    ), a = this.createItem(o, void 0);
+    p && Array.from(p.querySelectorAll(`.${this.CSS.item}`)).length > 0 ? p.prepend(a) : e == null || e.after(a), this.focusItem(a);
   }
   /**
    * Decrease indentation of the current item
@@ -656,16 +656,16 @@ class m {
     t.stopPropagation();
     let r;
     if (n) {
-      const a = n.querySelectorAll(
+      const l = n.querySelectorAll(
         `.${this.CSS.item}`
       );
-      r = Array.from(a).pop() || n;
+      r = Array.from(l).pop() || n;
     } else
       r = i;
     const s = h.extractFragmentFromCaretPositionTillTheEnd();
     if (!s)
       return;
-    const l = f(s);
+    const o = f(s);
     if (!r)
       return;
     const p = r.querySelector(
@@ -673,12 +673,12 @@ class m {
     );
     if (!p)
       return;
-    h.focus(p, !1), this.caret.save(), p.insertAdjacentHTML("beforeend", l);
-    let o = e.querySelectorAll(
+    h.focus(p, !1), this.caret.save(), p.insertAdjacentHTML("beforeend", o);
+    let a = e.querySelectorAll(
       `.${this.CSS.itemChildren} > .${this.CSS.item}`
     );
-    o = Array.from(o), o = o.filter((a) => !a.parentNode || !d(a.parentNode) ? !1 : a.parentNode.closest(`.${this.CSS.item}`) === e), o.reverse().forEach((a) => {
-      n ? r.after(a) : e.after(a);
+    a = Array.from(a), a = a.filter((l) => !l.parentNode || !d(l.parentNode) ? !1 : l.parentNode.closest(`.${this.CSS.item}`) === e), a.reverse().forEach((l) => {
+      n ? r.after(l) : e.after(l);
     }), e.remove(), this.caret.restore();
   }
   /**
@@ -702,8 +702,8 @@ class m {
     else {
       const s = this.makeListWrapper(void 0, [
         this.CSS.itemChildren
-      ]), l = n.querySelector(`.${this.CSS.itemBody}`);
-      s.appendChild(e), l == null || l.appendChild(s);
+      ]), o = n.querySelector(`.${this.CSS.itemBody}`);
+      s.appendChild(e), o == null || o.appendChild(s);
     }
     this.caret.restore();
   }
@@ -723,14 +723,14 @@ class m {
    * @returns {string}
    */
   static joinRecursive(t) {
-    return t.items.map((e) => `${e.content} ${m.joinRecursive(e)}`).join("");
+    return t.items.map((e) => `${e.content} ${g.joinRecursive(e)}`).join("");
   }
   /**
    * Convert from text to list with import and export list to text
    */
   static get conversionConfig() {
     return {
-      export: (t) => m.joinRecursive(t),
+      export: (t) => g.joinRecursive(t),
       import: (t) => ({
         items: [
           {
@@ -745,5 +745,5 @@ class m {
   }
 }
 export {
-  m as default
+  g as default
 };
